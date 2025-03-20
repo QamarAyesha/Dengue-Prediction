@@ -76,6 +76,11 @@ df['risk_level_numeric'] = df['risk_level_numeric'] / 2
 st.write("Risk Level Numeric Values:")
 st.write(df['risk_level_numeric'].value_counts())
 
+# Debug: Check for NaN values in risk_level_numeric
+if df['risk_level_numeric'].isnull().any():
+    st.warning("risk_level_numeric contains NaN values. Removing rows with NaN values.")
+    df = df.dropna(subset=['risk_level_numeric'])
+
 # Debug: Check gradient
 gradient = {
     0.0: "green",   # Low risk
@@ -105,7 +110,6 @@ except Exception as e:
 
 # Display map
 m.to_streamlit(height=700)
-
 
 
 
