@@ -70,6 +70,7 @@ m.add_heatmap(
     name="Dengue Risk Heatmap",
     radius=20,
     gradient=gradient
+)
 
 m.to_streamlit(height=700)
 
