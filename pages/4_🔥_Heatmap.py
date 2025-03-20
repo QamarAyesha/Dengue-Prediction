@@ -26,7 +26,12 @@ risk_type = st.sidebar.selectbox("Select Risk Type",
                                    "Water_Coverage_Risk_Score",
                                    "Past_Cases_Risk_Score",
                                    "Total_Risk_Score"])
-
+gradient = {
+    0.2: "#B3E5FC",  # Light Blue
+    0.4: "#4FC3F7",  # Teal Blue
+    0.6: "#0288D1",  # Medium Blue
+    0.8: "#6A1B9A"   # Purple
+}
 # Create Map
 m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
 m.add_heatmap(
@@ -36,7 +41,10 @@ m.add_heatmap(
     value=risk_type,
     name="Dengue Risk Heatmap",
     radius=20,
+    gradient=gradient
 )
+
+
 
 m.to_streamlit(height=700)
 
