@@ -34,7 +34,61 @@ risk_type = st.sidebar.selectbox(
 # Validate columns
 required_columns = ['Latitude', 'Longitude', risk_type]
 
-# Ensure
+# Ensure columns exist and are numeric
+for col in required_columns:
+    if col not in df.columns:
+        st.error(f"Missing column: {col}")
+        st.stop()
+    if not pd.api.types.is_numeric_dtype(df[col]):
+        st.error(f"Column '{col}' must be numeric.")
+        st.stop()
+
+# Handle missing data
+if df[required_columns].isnull().any().any():
+    st.warning("Data contains missing values. Removing rows with missing data.")
+    df = df.dropna(subset=required_columns)
+
+# Normalize the risk scores
+df[risk_type] = (df[risk_type] - df[risk_type].min()) / (df[risk_type].max() - df[risk_type].min())
+
+# Debug: Check normalized risk scores
+st.write("Normalized Risk Scores:")
+st.write(df[risk_type].describe())
+
+# Debug: Sample data
+st.write("Sample Data:")
+st.write(df[['Latitude', 'Longitude', risk_type]].head())
+
+# Create Map
+m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
+
+# Custom Gradient for Cooler Tones
+gradient = {
+    0.0: "blue",
+    0.5: "green",
+    1.0: "red"
+}
+
+# Debug: Check gradient
+st.write("Gradient:")
+st.write(gradient)
+
+try:
+    m.add_heatmap(
+        data=df[['Latitude', 'Longitude', risk_type]].rename(columns={risk_type: 'value'}),
+        latitude="Latitude",
+        longitude="Longitude",
+        value="value",
+        name="Dengue Risk Heatmap",
+        radius=20,
+        gradient=gradient
+    )
+    st.success("Heatmap added successfully!")
+except Exception as e:
+    st.error(f"Error adding heatmap: {e}")
+
+# Display map
+m.to_streamlit(height=700)
 
 
 
