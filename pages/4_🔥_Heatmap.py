@@ -75,7 +75,6 @@ try:
         value="value",
         name="Dengue Risk Heatmap",
         radius=20,
-        gradient=gradient
     )
     st.success("Heatmap added successfully!")
 except Exception as e:
