@@ -3,28 +3,33 @@ import leafmap.foliumap as leafmap
 
 st.set_page_config(layout="wide")
 
-markdown = """
-A Streamlit map template
-<https://github.com/opengeos/streamlit-map-template>
-"""
-
 st.sidebar.title("About")
-st.sidebar.info(markdown)
-logo = "https://i.imgur.com/UbOXYAU.png"
-st.sidebar.image(logo)
+st.sidebar.info("This is a Dengue Risk Heatmap for Lahore.")
 
-st.title("Heatmap")
+st.title("Dengue Risk Heatmap")
 
-with st.expander("See source code"):
-    with st.echo():
-        filepath = "https://raw.githubusercontent.com/giswqs/leafmap/master/examples/data/us_cities.csv"
-        m = leafmap.Map(center=[40, -100], zoom=4)
-        m.add_heatmap(
-            filepath,
-            latitude="latitude",
-            longitude="longitude",
-            value="pop_max",
-            name="Heat map",
-            radius=20,
-        )
+# Load your CSV data from Google Colab or GitHub
+url = "https://raw.githubusercontent.com/QamarAyesha/test-data/refs/heads/main/lahore_dengue_data.csv"  # If you uploaded it to Colab
+df = pd.read_csv(url)
+
+# Sidebar filter
+risk_type = st.sidebar.selectbox("Select Risk Type",
+                                  ["Weather_Risk_Score",
+                                   "Water_Coverage_Risk_Score",
+                                   "Past_Cases_Risk_Score",
+                                   "Total_Risk_Score"])
+
+# Create Map
+m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
+m.add_heatmap(
+    data=df,
+    latitude="Latitude",
+    longitude="Longitude",
+    value=risk_type,
+    name="Dengue Risk Heatmap",
+    radius=20,
+)
+
 m.to_streamlit(height=700)
+
+
