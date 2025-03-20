@@ -20,6 +20,9 @@ if response.status_code == 200:
 else:
     st.error("Error loading data. Please check the URL.")
 
+print(df[['Latitude', 'Longitude', risk_type]].dtypes)
+print(df.isnull().sum())
+
 # Sidebar filter
 risk_type = st.sidebar.selectbox("Select Risk Type",
                                   ["Weather_Risk_Score",
