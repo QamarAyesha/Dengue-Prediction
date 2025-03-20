@@ -51,31 +51,41 @@ if df[required_columns].isnull().any().any():
 # Normalize the risk scores
 df[risk_type] = (df[risk_type] - df[risk_type].min()) / (df[risk_type].max() - df[risk_type].min())
 
-# Debug: Check normalized risk scores
-st.write("Normalized Risk Scores:")
-st.write(df[risk_type].describe())
+# Define thresholds for risk levels
+risk_thresholds = {
+    'Low': 0.33,
+    'Medium': 0.66,
+    'High': 1.0
+}
 
-# Debug: Sample data
-st.write("Sample Data:")
-st.write(df[['Latitude', 'Longitude', risk_type]].head())
+# Categorize risk_score into risk_level
+df['risk_level'] = pd.cut(
+    df[risk_type],
+    bins=[0, risk_thresholds['Low'], risk_thresholds['Medium'], risk_thresholds['High']],
+    labels=['Low', 'Medium', 'High']
+)
+
+# Map risk_level to numeric values for gradient
+risk_level_mapping = {'Low': 0, 'Medium': 1, 'High': 2}
+df['risk_level_numeric'] = df['risk_level'].map(risk_level_mapping)
+
+# Debug: Check risk_level distribution
+st.write("Risk Level Distribution:")
+st.write(df['risk_level'].value_counts())
 
 # Create Map
 m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
 
-# Custom Gradient for Cooler Tones
+# Custom Gradient for risk_level
 gradient = {
-    0.0: "blue",
-    0.5: "green",
-    1.0: "red"
+    0.0: "green",   # Low risk
+    0.5: "yellow",  # Medium risk
+    1.0: "red"      # High risk
 }
-
-# Debug: Check gradient
-st.write("Gradient:")
-st.write(gradient)
 
 try:
     m.add_heatmap(
-        data=df[['Latitude', 'Longitude', risk_type]].rename(columns={risk_type: 'value'}),
+        data=df[['Latitude', 'Longitude', 'risk_level_numeric']].rename(columns={'risk_level_numeric': 'value'}),
         latitude="Latitude",
         longitude="Longitude",
         value="value",
@@ -89,7 +99,6 @@ except Exception as e:
 
 # Display map
 m.to_streamlit(height=700)
-
 
 
 
