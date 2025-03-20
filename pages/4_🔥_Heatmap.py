@@ -33,24 +33,20 @@ risk_type = st.sidebar.selectbox(
 
 # Validate columns
 required_columns = ['Latitude', 'Longitude', risk_type]
-if not all(col in df.columns for col in required_columns):
-    st.error("Missing required columns in data.")
-    st.stop()
 
-# Handle missing or non-numeric data
+# Ensure columns exist and are numeric
+for col in required_columns:
+    if col not in df.columns:
+        st.error(f"Missing column: {col}")
+        st.stop()
+    if not pd.api.types.is_numeric_dtype(df[col]):
+        st.error(f"Column '{col}' must be numeric.")
+        st.stop()
+
+# Handle missing data
 if df[required_columns].isnull().any().any():
     st.warning("Data contains missing values. Removing rows with missing data.")
     df = df.dropna(subset=required_columns)
-
-# Ensure latitude and longitude are numeric
-try:
-    df['Latitude'] = pd.to_numeric(df['Latitude'], errors='coerce')
-    df['Longitude'] = pd.to_numeric(df['Longitude'], errors='coerce')
-    df[risk_type] = pd.to_numeric(df[risk_type], errors='coerce')
-    df = df.dropna(subset=['Latitude', 'Longitude', risk_type])
-except Exception as e:
-    st.error(f"Error processing data: {e}")
-    st.stop()
 
 # Create Map
 m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
@@ -74,9 +70,13 @@ try:
         radius=20,
         gradient=gradient
     )
-    m.to_streamlit(height=700)
+    st.success("Heatmap added successfully!")
 except Exception as e:
     st.error(f"Error adding heatmap: {e}")
+
+# Display map
+m.to_streamlit(height=700)
+
 
 
 
