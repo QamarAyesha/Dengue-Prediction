@@ -67,7 +67,7 @@ df['risk_level'] = pd.cut(
 
 # Map risk_level to numeric values for gradient
 risk_level_mapping = {'Low': 0, 'Medium': 1, 'High': 2}
-df['risk_level_numeric'] = df['risk_level'].map(risk_level_mapping)
+df['risk_level_numeric'] = df['risk_level'].map(risk_level_mapping).astype(float)  # Convert to float
 
 # Normalize risk_level_numeric to [0, 1] for gradient
 df['risk_level_numeric'] = df['risk_level_numeric'] / 2
