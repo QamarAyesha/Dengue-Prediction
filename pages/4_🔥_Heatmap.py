@@ -1,5 +1,6 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
+import requests
 
 st.set_page_config(layout="wide")
 
@@ -10,6 +11,12 @@ st.title("Dengue Risk Heatmap")
 
 # Load your CSV data from Google Colab or GitHub
 url = "https://raw.githubusercontent.com/QamarAyesha/test-data/refs/heads/main/lahore_dengue_data.csv"  # If you uploaded it to Colab
+response = requests.get(url)
+
+if response.status_code == 200:
+    print("URL is accessible")
+else:
+    print(f"Error: {response.status_code}")
 df = pd.read_csv(url)
 
 # Sidebar filter
