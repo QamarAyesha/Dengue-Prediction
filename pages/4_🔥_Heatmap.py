@@ -48,6 +48,13 @@ if df[required_columns].isnull().any().any():
     st.warning("Data contains missing values. Removing rows with missing data.")
     df = df.dropna(subset=required_columns)
 
+# Normalize the risk scores
+df[risk_type] = (df[risk_type] - df[risk_type].min()) / (df[risk_type].max() - df[risk_type].min())
+
+# Debug: Check normalized risk scores
+st.write("Normalized Risk Scores:")
+st.write(df[risk_type].describe())
+
 # Create Map
 m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
 
@@ -62,10 +69,10 @@ gradient = {
 
 try:
     m.add_heatmap(
-        data=df,
+        data=df[['Latitude', 'Longitude', risk_type]].rename(columns={risk_type: 'value'}),
         latitude="Latitude",
         longitude="Longitude",
-        value=risk_type,
+        value="value",
         name="Dengue Risk Heatmap",
         radius=20,
         gradient=gradient
@@ -73,6 +80,7 @@ try:
     st.success("Heatmap added successfully!")
 except Exception as e:
     st.error(f"Error adding heatmap: {e}")
+    st.error(f"Debug Info: Data Columns - {df.columns}, Risk Type - {risk_type}")
 
 # Display map
 m.to_streamlit(height=700)
