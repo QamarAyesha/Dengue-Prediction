@@ -69,19 +69,24 @@ df['risk_level'] = pd.cut(
 risk_level_mapping = {'Low': 0, 'Medium': 1, 'High': 2}
 df['risk_level_numeric'] = df['risk_level'].map(risk_level_mapping)
 
-# Debug: Check risk_level distribution
-st.write("Risk Level Distribution:")
-st.write(df['risk_level'].value_counts())
+# Normalize risk_level_numeric to [0, 1] for gradient
+df['risk_level_numeric'] = df['risk_level_numeric'] / 2
 
-# Create Map
-m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
+# Debug: Check risk_level_numeric values
+st.write("Risk Level Numeric Values:")
+st.write(df['risk_level_numeric'].value_counts())
 
-# Custom Gradient for risk_level
+# Debug: Check gradient
 gradient = {
     0.0: "green",   # Low risk
     0.5: "yellow",  # Medium risk
     1.0: "red"      # High risk
 }
+st.write("Gradient:")
+st.write(gradient)
+
+# Create Map
+m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
 
 try:
     m.add_heatmap(
@@ -90,7 +95,8 @@ try:
         longitude="Longitude",
         value="value",
         name="Dengue Risk Heatmap",
-        radius=20,
+        radius=25,  # Adjust radius
+        blur=15,    # Adjust blur
         gradient=gradient
     )
     st.success("Heatmap added successfully!")
