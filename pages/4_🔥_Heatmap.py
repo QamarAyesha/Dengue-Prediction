@@ -10,6 +10,13 @@ st.sidebar.info("This is a Dengue Risk Heatmap for Lahore.")
 
 st.title("Dengue Risk Heatmap")
 
+# Sidebar filter
+risk_type = st.sidebar.selectbox("Select Risk Type",
+                                  ["Weather_Risk_Score",
+                                   "Water_Coverage_Risk_Score",
+                                   "Past_Cases_Risk_Score",
+                                   "Total_Risk_Score"])
+
 # Load your CSV data from GitHub
 url = "https://raw.githubusercontent.com/QamarAyesha/test-data/refs/heads/main/lahore_dengue_data.csv"
 response = requests.get(url)
@@ -19,16 +26,11 @@ if response.status_code == 200:
     df = pd.read_csv(url)
 else:
     st.error("Error loading data. Please check the URL.")
+    st.stop()
 
+# Debugging information
 print(df[['Latitude', 'Longitude', risk_type]].dtypes)
 print(df.isnull().sum())
-
-# Sidebar filter
-risk_type = st.sidebar.selectbox("Select Risk Type",
-                                  ["Weather_Risk_Score",
-                                   "Water_Coverage_Risk_Score",
-                                   "Past_Cases_Risk_Score",
-                                   "Total_Risk_Score"])
 
 # Create Map
 m = leafmap.Map(center=[31.5204, 74.3587], zoom=12)
@@ -53,5 +55,6 @@ m.add_heatmap(
 )
 
 m.to_streamlit(height=700)
+
 
 
