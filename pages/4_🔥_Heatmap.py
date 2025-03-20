@@ -42,12 +42,14 @@ if df[required_columns].isnull().any().any():
     st.warning("Data contains missing values. Removing rows with missing data.")
     df = df.dropna(subset=required_columns)
 
-if not pd.api.types.is_numeric_dtype(df['Latitude']) or not pd.api.types.is_numeric_dtype(df['Longitude']):
-    st.error("Latitude or Longitude columns contain non-numeric values.")
-    st.stop()
-
-if not pd.api.types.is_numeric_dtype(df[risk_type]):
-    st.error(f"{risk_type} column contains non-numeric values.")
+# Ensure latitude and longitude are numeric
+try:
+    df['Latitude'] = pd.to_numeric(df['Latitude'], errors='coerce')
+    df['Longitude'] = pd.to_numeric(df['Longitude'], errors='coerce')
+    df[risk_type] = pd.to_numeric(df[risk_type], errors='coerce')
+    df = df.dropna(subset=['Latitude', 'Longitude', risk_type])
+except Exception as e:
+    st.error(f"Error processing data: {e}")
     st.stop()
 
 # Create Map
@@ -62,17 +64,20 @@ gradient = {
     1.0: "rgba(0, 0, 102, 0.8)"
 }
 
-m.add_heatmap(
-    data=df,
-    latitude="Latitude",
-    longitude="Longitude",
-    value=risk_type,
-    name="Dengue Risk Heatmap",
-    radius=20,
-    gradient=gradient
-)
+try:
+    m.add_heatmap(
+        data=df,
+        latitude="Latitude",
+        longitude="Longitude",
+        value=risk_type,
+        name="Dengue Risk Heatmap",
+        radius=20,
+        gradient=gradient
+    )
+    m.to_streamlit(height=700)
+except Exception as e:
+    st.error(f"Error adding heatmap: {e}")
 
-m.to_streamlit(height=700)
 
 
 
